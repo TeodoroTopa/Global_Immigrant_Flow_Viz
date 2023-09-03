@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <title>Project 2</title>
+        <script src="https://d3js.org/d3.v6.min.js"></script>
+        <script src="https://d3js.org/topojson.v3.min.js"></script>
+        <link rel="shortcut icon" href="#">
+
+        <style>
+            html {
+                font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+                margin-left: 20px;
+                margin-right: 20px;
+            }
+
+            body p {
+                font-size: larger;
+                margin-left: 10px;
+                margin-right: 10px;
+            }
+
+            h1 {
+                background-color: #e1bdff;
+                padding-top: 10px;
+                padding-bottom: 10px;
+                padding-left: 5px;
+            }
+
+            .countries {
+                fill: #ddd;
+            }
+
+            path[region="Southern Europe"] {
+                fill: #66c2a5;
+            }
+
+            .destinations:hover, .origins:hover, .country:hover, .countries:hover {
+                cursor: pointer;
+            }
+
+            .destinations:hover, .origins:hover {
+                stroke-width: 2px;
+            }
+
+            .outline {
+                stroke: grey;
+                stroke-width: 1px;
+                fill: none;
+            }
+
+            .graticule {
+                fill: none;
+                stroke: lightgrey;
+                stroke-width: 1px;
+            }
+
+            .migration{
+              stroke: black;
+            }
+
+            .mapandfilters{
+                display: flex;
+                flex-direction: row;
+            }
+
+            .interactions{
+                margin-top: 1em;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .checkboxes{
+                display: flex;
+                flex-direction: column;
+            }
+
+            .labelinput{
+                display: flex;
+                flex-direction: row;
+                margin-top: 3px;
+                align-items: center;
+            }
+
+            .year-input-row {
+                margin-top: 10px;
+                display: flex;
+            }
+
+            .year-input-row a {
+                margin-right: auto;
+                margin-left: auto;
+                border: 1px solid black;
+                padding: 2px 4px 2px 4px;
+                border-radius: 3px;
+            }
+
+            .year-input-row a:hover {
+                cursor: pointer;
+                text-decoration: underline;
+                box-shadow: 1px 1px 4px 1px #e1bdff;
+            }
+
+            .selected {
+                background-color: #e1bdff;
+            }
+
+            .notselected {
+                background-color: white;
+            }
+
+            .labelinput input {
+                width: 15px;
+                height: 15px;
+            }
+
+        </style>
+    </head>
+
+    <body>
+
+        <h1>Global Immigration Patterns</h1>
+
+        <p>This visualization shows the movement of people around the world based on data publicly available thorugh the United Nations. </p>
+
+        <p>To explore global migration patterns, use the check boxes on the right to select the regions you'd like to learn about. Hit filter, and the map will update showing where people from that region went!
+          Make one or more selections, and specify a year to compare and contrast migration patterns over the last three decades. Click on one of the regions in the
+          map and scroll down to see a sex-based breakdown of people who entered and exited the region in your selected year.</p>
+
+        <div class = "mapandfilters">
+            <svg id="worldmap" height="550" width="1100" style="margin:20px;"> </svg>
+
+            <div class='interactions'>
+                <div class="checkboxes">
+
+                    <div class='labelinput'>
+                    <input type="checkbox" id="all" name="all">
+                    <label for="all">All</label>
+                    </div>
+
+                    <div class='labelinput'>
+                    <input type="checkbox" id="northern-america" name="northern-america" checked>
+                    <label for="northern-america">Northern America</label>
+                    <span class="checkmark"></span>
+                    </div>
+
+                    <div class='labelinput'>
+                    <input type="checkbox" id="south-america" name="south-america">
+                    <label for="south-america">South America</label>
+                    </div>
+
+                    <div class='labelinput'>
+                    <input type="checkbox" id="latin-america-and-the-caribbean" name="latin-america-and-the-caribbean">
+                    <label for="latin-america-and-the-caribbean">Latin America and the Caribbean</label>
+                    </div>
+
+                    <div class='labelinput'>
+                    <input type="checkbox" id="oceania-(excluding-australia-and-new-zealand)" name="oceania-(excluding-australia-and-new-zealand)">
+                    <label for="oceania-(excluding-australia-and-new-zealand)">Oceania (excluding Australia & New Zealand)</label>
+                    </div>
+
+                    <div class='labelinput'>
+                    <input type="checkbox" id="australia-and-new-zealand" name="australia-and-new-zealand">
+                    <label for="australia-and-new-zealand">Australia & New Zealand</label>
+                    </div>
+
+                    <div class='labelinput'>
+                    <input type="checkbox" id="eastern-africa" name="eastern-africa">
+                    <label for="eastern-africa">Eastern Africa</label>
+                    </div>
+
+                    <div class='labelinput'>
+                    <input type="checkbox" id="middle-africa" name="middle-africa">
+                    <label for="middle-africa">Middle Africa</label>
+                    </div>
+
+                    <div class='labelinput'>
+                    <input type="checkbox" id="northern-africa" name="northern-africa">
+                    <label for="northern-africa">Northern Africa</label>
+                    </div>
+
+                    <div class='labelinput'>
+                    <input type="checkbox" id="southern-africa" name="southern-africa">
+                    <label for="southern-africa">Southern Africa</label>
+                    </div>
+
+                    <div class='labelinput'>
+                    <input type="checkbox" id="western-africa" name="western-africa">
+                    <label for="western-africa">Western Africa</label>
+                    </div>
+
+                    <div class='labelinput'>
+                    <input type="checkbox" id="central-asia" name="central-asia">
+                    <label for="central-asia">Central Asia</label>
+                    </div>
+
+                    <div class='labelinput'>
+                    <input type="checkbox" id="eastern-asia" name="eastern-asia">
+                    <label for="eastern-asia">Eastern Asia</label>
+                    </div>
+
+                    <div class='labelinput'>
+                    <input type="checkbox" id="south-eastern-asia" name="south-eastern-asia">
+                    <label for="south-eastern-asia">South-eastern Asia</label>
+                    </div>
+
+                    <div class='labelinput'>
+                    <input type="checkbox" id="southern-asia" name="southern-asia">
+                    <label for="southern-asia">Southern Asia</label>
+                    </div>
+
+                    <div class='labelinput'>
+                    <input type="checkbox" id="western-asia" name="western-asia">
+                    <label for="western-asia">Western Asia</label>
+                    </div>
+
+                    <div class='labelinput'>
+                    <input type="checkbox" id="eastern-europe" name="eastern-europe">
+                    <label for="eastern-europe">Eastern Europe</label>
+                    </div>
+
+                    <div class='labelinput'>
+                    <input type="checkbox" id="northern-europe" name="northern-europe">
+                    <label for="northern-europe">Northern Europe</label>
+                    </div>
+
+                    <div class='labelinput'>
+                    <input type="checkbox" id="southern-europe" name="southern-europe">
+                    <label for="southern-europe">Southern Europe</label>
+                    </div>
+
+                    <div class='labelinput'>
+                    <input type="checkbox" id="western-europe" name="western-europe">
+                    <label for="western-europe">Western Europe</label>
+                    </div>
+
+                    <br>
+                    <button id='submitRegions'>Filter</button>
+
+                </div>
+                <br>
+                <div class='year-input-row'>
+                    <a id="yr1990">1990</a>
+                    <a id="yr1995">1995</a>
+                    <a id="yr2000">2000</a>
+                    <a id="yr2005">2005</a>
+                    <a id="yr2010">2010</a>
+                    <a id="yr2015">2015</a>
+                    <a id="yr2020">2020</a>
+                </div>
+            </div>
+        </div>
+
+        <h1>Total Immigration To and From a Region</h1>
+        <p>
+            This bar graph shows the total population change of a selected region due to immigration and emigration. Negative values indicate the number of people leaving the region and positive values indicate the number of people entering the region.
+        </p>
+        <p>To explore another region, click on the colored regions on the map above. Filtering regions or changing the year will also update the chart accordingly.
+        </p>
+        <p>
+            <svg id="bargraph" height="435" width="700" style="margin:20px; border:2px solid #e1bdff;" > </svg>
+        </p>
+
+        <script>
+            const validRegions = ['latin america and the caribbean',
+                                  'oceania (excluding australia and new zealand)',
+                                  'australia and new zealand',
+                                  'eastern africa',
+                                  'middle africa',
+                                  'northern africa',
+                                  'southern africa',
+                                  'western africa',
+                                  'central asia',
+                                  'eastern asia',
+                                  'south-eastern asia',
+                                  'southern asia',
+                                  'western asia',
+                                  'eastern europe',
+                                  'northern europe',
+                                  'southern europe',
+                                  'western europe',
+                                  'latin america and the caribbean',
+                                  'south america',
+                                  'northern america'];
+
+            const regionMap = {'latin america and the caribbean': 'latin-america-and-the-caribbean',
+                            'oceania (excluding australia and new zealand)': 'oceania-(excluding-australia-and-new-zealand)',
+                            'australia and new zealand': 'australia-and-new-zealand',
+                            'eastern africa': 'eastern-africa',
+                            'middle africa': 'middle-africa',
+                            'northern africa': 'northern-africa',
+                            'southern africa': 'southern-africa',
+                            'western africa': 'western-africa',
+                            'central asia': 'central-asia',
+                            'eastern asia': 'eastern-asia',
+                            'south-eastern asia': 'south-eastern-asia',
+                            'southern asia': 'southern-asia',
+                            'western asia': 'western-asia',
+                            'eastern europe': 'eastern-europe',
+                            'northern europe': 'northern-europe',
+                            'southern europe': 'southern-europe',
+                            'western europe': 'western-europe',
+                            'south america': 'south-america',
+                            'northern america': 'northern-america'}
+
+            const svg = d3.select("svg#worldmap");
+            const width = svg.attr("width");
+            const height = svg.attr("height");
+            const margin = { top: 20, right: 20, bottom: 20, left: 20 };
+            let mapArea = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            let year = 2020;
+
+            const getData = async function(yearIn) {
+
+                const worldMap = await d3.json("countries-110m.json");
+
+                var land = topojson.feature(worldMap, worldMap.objects.land);
+                var countries = topojson.feature(worldMap, worldMap.objects.countries);
+                var countriesMesh = topojson.mesh(worldMap, worldMap.objects.countries);
+
+                var projection = d3.geoEquirectangular().fitSize([width-40,height-40], countries);;
+                var path = d3.geoPath().projection(projection);
+
+                var graticule = d3.geoGraticule10();
+                mapArea.append("path").attr("class","graticule").attr("d", path(graticule) )
+
+                mapArea.selectAll("path.countries").data(countries.features)
+                    .join("path")
+                    .attr("class", "countries")
+                    .attr("d", path);
+
+                mapArea.append("path").datum(countriesMesh)
+                    .attr("class","outline")
+                    .attr("fill", "blue")
+                    .attr("d", path);
+
+                // recolor displayed year
+                d3.selectAll("a").attr("class","notselected");
+                d3.select("#yr" + yearIn).attr("class","selected");
+
+                //loading csv which maps countries to regions and continents
+                var countrycolors = await d3.csv('country-region-map.csv');
+
+                // initializing country -> region and country -> continent dicts
+                colorregionmap = {};
+                colorcontinentmap = {};
+
+                // filling dict with country -> continent and country -> region key value pairs
+                countrycolors.forEach(d => {
+                  colorregionmap[d['country']] = d['region name']
+                  colorcontinentmap[d['country']] = d['continent']
+                });
+
+
+                // adding new properties to each country: continent and region
+                countries.features.forEach(d => {
+                  d.properties.continent = colorcontinentmap[d.properties.name]
+                  d.properties.region = colorregionmap[d.properties.name]
+                });
+
+                //creating the colorScale for country coloring
+                colorArray = d3.schemeSet2;
+                const colorScale = d3.scaleOrdinal(colorArray);
+
+                //coloring countries
+                mapArea.selectAll('path.country').data(countries.features)
+                       .join('path')
+                       .attr('class', 'country')
+                       .attr('d', path)
+                       .attr('fill', d => colorScale(d.properties.region))
+                       .attr("region", d => d.properties.region)
+                       .on("click", barGraph);
+
+                //loading immigration data
+                var data = await d3.csv('immigration_data.csv', d3.autoType);
+
+
+                newdata = await data.filter((d) => {
+                    return validRegions.includes(d['Origin']) && validRegions.includes(d['Destination'])
+                                                            && d['Origin'] != d['Destination']
+                })
+
+                // preserve data used in bar graph
+                var totaldata = newdata;
+
+                // filtering according to  checked boxes
+                if( document.getElementById('all').checked == false) {
+
+                    var activeRegions = []
+
+                    validRegions.forEach(region => {
+                        if( document.getElementById(regionMap[region]).checked == true ) {
+                            activeRegions.push(region)
+                        }
+                    })
+
+                    newdata = await data.filter((d) => {
+                    return activeRegions.includes(d['Origin']) && validRegions.includes(d['Destination'])
+                                                            && d['Origin'] != d['Destination']
+                    })
+
+                }
+
+                //nation specific thickness scale
+                var targetYear = "T" + yearIn;
+                var migrationExtent = await d3.extent(newdata, d => d[targetYear])
+                //creating scale for line thickness
+                var thicknessScale = await d3.scaleLinear().domain(migrationExtent).range([0.5, 10]);
+
+                //functions to get coordinates of origin and destination
+                const getProjectionO = function(d){
+                  return projection([d['origin_long'], d['origin_lat']]);
+                }
+
+                const getProjectionD = function(d){
+                  return projection([d['dest_long'], d['dest_lat']]);
+                }
+
+                //plotting lines
+                mapArea.selectAll('line.migration').data(newdata)
+                       .join("line")
+                       .attr('class', 'migration')
+                       .attr('x1',  d => getProjectionO(d)[0] )
+                       .attr('y1',  d => getProjectionO(d)[1] )
+                       .attr('x2',  d => getProjectionD(d)[0] )
+                       .attr('y2',  d => getProjectionD(d)[1] )
+                       .attr('stroke-width', d => thicknessScale(d[targetYear]));
+
+
+                // map legend
+                let mapLegend = mapArea.append("g").attr("transform", "translate(4, 225)")
+
+                mapLegend.append('rect')
+                       .attr('class', 'legend')
+                       .attr('x', 2)
+                       .attr('y', 0)
+                       .attr('height', 180)
+                       .attr('width', 200)
+                       .attr('style','fill:white; stroke:#e1bdff; stroke-width:2');
+
+                mapLegend.append('text')
+                       .text('Legend')
+                       .attr('x', 100)
+                       .attr('y', 30)
+                       .attr('style','font-size: 1.2em; text-anchor:middle');
+
+                mapLegend.append('text')
+                       .text(d3.format(",")(migrationExtent[0]))
+                       .attr('x', 110)
+                       .attr('y', 60);
+
+                mapLegend.append('rect')
+                       .attr('x', 30)
+                       .attr('y', 55)
+                       .attr('height', 0.5)
+                       .attr('width', 60);
+
+                mapLegend.append('text')
+                       .text(d3.format(",")(migrationExtent[1]))
+                       .attr('x', 110)
+                       .attr('y', 90);
+
+                mapLegend.append('rect')
+                       .attr('x', 30)
+                       .attr('y', 80)
+                       .attr('height', 10)
+                       .attr('width', 60);
+
+                mapLegend.append("circle")
+                        .attr("cx", 60)
+                        .attr("cy", 125)
+                        .attr("r", 7)
+                        .attr("fill", "#ff4d5e")
+                        .attr('stroke', 'black');
+
+                mapLegend.append("text")
+                            .text("Origin")
+                            .attr("x", 110)
+                            .attr("y", 130);
+
+                mapLegend.append("circle")
+                        .attr("cx", 60)
+                        .attr("cy", 155)
+                        .attr("r", 7)
+                        .attr("fill", "#52ff74")
+                        .attr('stroke', 'black');
+
+                mapLegend.append("text")
+                            .text("Destination")
+                            .attr("x", 110)
+                            .attr("y", 160);
+
+                // Plotting coordinate circles
+                mapArea.selectAll('circle.destinations').data(newdata)
+                        .join('circle')
+                        .attr('class', 'destinations')
+                        .attr("region", d => d.Destination)
+                        .attr('cx',  d => getProjectionD(d)[0] )
+                        .attr('cy',  d => getProjectionD(d)[1] )
+                        .attr('r', '6')
+                        .attr('stroke', 'black')
+                        .attr('fill', '#52ff74')
+                        .on("click", barGraph);
+
+                mapArea.selectAll('circle.origins').data(newdata)
+                        .join('circle')
+                        .attr('class', 'origins')
+                        .attr("region", d => d.Origin)
+                        .attr('cx',  d => getProjectionO(d)[0] )
+                        .attr('cy',  d => getProjectionO(d)[1] )
+                        .attr('r', '6')
+                        .attr('stroke', 'black')
+                        .attr('fill', '#ff4d5e')
+                        .on("click", barGraph);
+
+                // Bar Graph Scales and Axes:
+                let barsvg = d3.select("svg#bargraph");
+                let chartMargin = { top: 45, right: 20, bottom: 45, left: 80 };
+                let chartWidth = barsvg.attr("width") - chartMargin.left - chartMargin.right;
+                let chartHeight = barsvg.attr("height") - chartMargin.top - chartMargin.bottom;
+                let translation = "translate("+(chartMargin.left)+","+(chartMargin.top)+")"
+
+                // Makes an individual bar
+                function makeBar(place, color, total, gYAxis, xScale, yScale) {
+
+                    gYAxis.append("line")
+                        .attr("transform",translation)
+                        .style("stroke", color)
+                        .style("stroke-width", 50)
+                        .attr("x1", xScale(place))
+                        .attr("y1", yScale(0))
+                        .attr("x2", xScale(place))
+                        .attr("y2", yScale(total));
+
+                    var formatComma = d3.format(",");
+
+                    gYAxis.append("text")
+                        .text(function() { return formatComma(total); })
+                        .attr("transform",translation)
+                        .attr("x", xScale(place))
+                        .attr("y", total < 0 ? yScale(total) + 15 : yScale(total) - 10)
+                        .attr("text-anchor","middle")
+                        .attr("dominant-baseline","middle");
+
+                }
+
+                // Get total # of people arriving and leaving a region
+                var leaving = {"male": 0, "female": 0};
+                var arriving = {"male": 0, "female": 0};
+                var region = !(activeRegions) ? "northern america" : activeRegions[0];
+                var year = "T" + yearIn;
+
+                totaldata.forEach( (d,i) => {
+                    if (d.Destination == region.toLowerCase()) {
+                        arriving.female += d["F" + year.substring(1, year.length)];
+                        arriving.male += d["M" + year.substring(1, year.length)];
+                    }
+                    if (d.Origin == region.toLowerCase()) {
+                        leaving.female += d["F" + year.substring(1, year.length)];
+                        leaving.male += d["M" + year.substring(1, year.length)];
+                    }
+                });
+
+                // Capitalize region names for title
+                region = region.split(' ')
+                                .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
+                                .join(' ');
+
+                if (region == "Oceania (excluding Australia And New Zealand)") {
+                    region = "Oceania (excluding Australia & New Zealand)";
+                }
+
+                // Create axises for bar graph
+                barsvg.append("text")
+                    .attr("x", barsvg.attr("width") / 2)
+                    .attr("y", 25)
+                    .attr('text-anchor', 'middle')
+                    .style("font-size", "20px")
+                    .text(region + "'s Immigration Total in " + yearIn);
+
+                var space = leaving.male > arriving.male ? -1.25 : -2;
+                let yScale = d3.scaleLinear()
+                            .domain([leaving.male > leaving.female ? space * leaving.male : space * leaving.female, arriving.male > arriving.female ? 1.25 * arriving.male : 1.25 * arriving.female])
+                            .range([chartHeight, 0]);
+
+                let yAxis = d3.axisLeft(yScale).tickFormat(d3.format(".2s"));
+                let gYAxis = barsvg.append("g");
+
+                barsvg.append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", 8)
+                    .attr("x",0 - (chartHeight / 2) - chartMargin.bottom)
+                    .attr("dy", "1em")
+                    .style("text-anchor", "middle")
+                    .text("Change in Population");
+
+                gYAxis.append("g")
+                    .attr("class", "yAxis")
+                    .attr("transform",translation)
+                    .call(yAxis);
+
+                gYAxis.append("line")
+                        .attr("transform",translation)
+                        .style("stroke", "black")
+                        .style("stroke-width", 1)
+                        .attr("x1", 0)
+                        .attr("y1", yScale(0))
+                        .attr("x2", chartWidth)
+                        .attr("y2", yScale(0));
+
+                let xScale = d3.scaleLinear().domain([0,18]).range([0,chartWidth]);
+
+                // Make bars
+                makeBar(3, "#F75797", -1 * leaving.female, gYAxis, xScale, yScale);
+                makeBar(7, "#448BF4", -1 * leaving.male, gYAxis, xScale, yScale);
+                makeBar(11, "#F75797", arriving.female, gYAxis, xScale, yScale);
+                makeBar(15, "#448BF4", arriving.male, gYAxis, xScale, yScale);
+
+                // Legend
+                let legend = barsvg.append("g")
+                                    .attr("transform", "translate(" + (chartWidth - 60) + "," + (chartHeight + 30) + ")");
+
+                    legend.append("text")
+                        .attr("x", 20)
+                        .attr("y", 10)
+                        .text("Female Migrants")
+                        .attr("dominant-baseline", "middle");
+
+                    legend.append("text")
+                        .attr("x", 20)
+                        .attr("y", 40)
+                        .text("Male Migrants")
+                        .attr("dominant-baseline", "middle");
+
+                    legend.append('rect')
+                            .attr("x", 0)
+                            .attr("y", 0)
+                            .attr("width", 15)
+                            .attr("height", 15)
+                            .attr("fill", "#F75797");
+
+                    legend.append('rect')
+                            .attr("x", 0)
+                            .attr("y", 30)
+                            .attr("width", 15)
+                            .attr("height", 15)
+                            .attr("fill", "#448BF4");
+
+
+                // Function for clickable map that makes entire bar graph based on region
+                function barGraph() {
+                    barsvg.selectAll("*").remove();
+
+                    // Get total # of people arriving and leaving a region
+                    var leaving = {"male": 0, "female": 0};
+                    var arriving = {"male": 0, "female": 0};
+                    var region = d3.select(this).attr("region");
+                    var year = "T" + yearIn;
+
+                    totaldata.forEach( (d,i) => {
+                        if (d.Destination == region.toLowerCase()) {
+                            arriving.female += d["F" + year.substring(1, year.length)];
+                            arriving.male += d["M" + year.substring(1, year.length)];
+                        }
+                        if (d.Origin == region.toLowerCase()) {
+                            leaving.female += d["F" + year.substring(1, year.length)];
+                            leaving.male += d["M" + year.substring(1, year.length)];
+                        }
+                    });
+
+                                    // Capitalize region names for title
+                    region = region.split(' ')
+                                .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
+                                .join(' ');
+
+                    if (region == "Oceania (excluding Australia And New Zealand)") {
+                        region = "Oceania (excluding Australia & New Zealand)";
+                    }
+
+                    // Create axises for bar graph
+                    barsvg.append("text")
+                        .attr("x", barsvg.attr("width") / 2)
+                        .attr("y", 25)
+                        .attr('text-anchor', 'middle')
+                        .style("font-size", "20px")
+                        .text(region + "'s Immigration Total in " + yearIn);
+
+                    var space = leaving.male > arriving.male ? -1.25 : -2;
+                    let yScale = d3.scaleLinear()
+                                 .domain([leaving.male > leaving.female ? space * leaving.male : space * leaving.female, arriving.male > arriving.female ? 1.25 * arriving.male : 1.25 * arriving.female])
+                                 .range([chartHeight, 0]);
+
+                    let yAxis = d3.axisLeft(yScale).tickFormat(d3.format(".2s"));
+                    let gYAxis = barsvg.append("g");
+
+                    barsvg.append("text")
+                        .attr("transform", "rotate(-90)")
+                        .attr("y", 8)
+                        .attr("x",0 - (chartHeight / 2) - chartMargin.bottom)
+                        .attr("dy", "1em")
+                        .style("text-anchor", "middle")
+                        .text("Change in Population");
+
+                    gYAxis.append("g")
+                        .attr("class", "yAxis")
+                        .attr("transform",translation)
+                        .call(yAxis);
+
+                    gYAxis.append("line")
+                            .attr("transform",translation)
+                            .style("stroke", "black")
+                            .style("stroke-width", 1)
+                            .attr("x1", 0)
+                            .attr("y1", yScale(0))
+                            .attr("x2", chartWidth)
+                            .attr("y2", yScale(0));
+
+                    let xScale = d3.scaleLinear().domain([0,18]).range([0,chartWidth]);
+
+                    // Make bars
+                    makeBar(3, "#F75797", -1 * leaving.female, gYAxis, xScale, yScale);
+                    makeBar(7, "#448BF4", -1 * leaving.male, gYAxis, xScale, yScale);
+                    makeBar(11, "#F75797", arriving.female, gYAxis, xScale, yScale);
+                    makeBar(15, "#448BF4", arriving.male, gYAxis, xScale, yScale);
+
+                    // Legend
+                    let legend = barsvg.append("g")
+                                    .attr("transform", "translate(" + (chartWidth - 60) + "," + (chartHeight + 30) + ")");
+
+                    legend.append("text")
+                        .attr("x", 20)
+                        .attr("y", 10)
+                        .text("Female Migrants")
+                        .attr("dominant-baseline", "middle");
+
+                    legend.append("text")
+                        .attr("x", 20)
+                        .attr("y", 40)
+                        .text("Male Migrants")
+                        .attr("dominant-baseline", "middle");
+
+                    legend.append('rect')
+                            .attr("x", 0)
+                            .attr("y", 0)
+                            .attr("width", 15)
+                            .attr("height", 15)
+                            .attr("fill", "#F75797");
+
+                    legend.append('rect')
+                            .attr("x", 0)
+                            .attr("y", 30)
+                            .attr("width", 15)
+                            .attr("height", 15)
+                            .attr("fill", "#448BF4");
+
+                }
+
+                // Clickable year button functions
+                d3.select("#yr1990").on("click", function() {
+                    mapArea.selectAll('*').remove();
+                    barsvg.selectAll('*').remove();
+                    year = 1990;
+                    getData(year);
+                });
+
+                d3.select("#yr1995").on("click", function() {
+                    mapArea.selectAll('*').remove();
+                    barsvg.selectAll('*').remove();
+                    year = 1995;
+                    getData(year);
+                });
+
+                d3.select("#yr2000").on("click", function() {
+                    mapArea.selectAll('*').remove();
+                    barsvg.selectAll('*').remove();
+                    year = 2000;
+                    getData(year);
+                });
+
+                d3.select("#yr2005").on("click", function() {
+                    mapArea.selectAll('*').remove();
+                    barsvg.selectAll('*').remove();
+                    year = 2005;
+                    getData(year);
+                });
+
+                d3.select("#yr2010").on("click", function() {
+                    mapArea.selectAll('*').remove();
+                    barsvg.selectAll('*').remove();
+                    year = 2010;
+                    getData(year);
+                });
+
+                d3.select("#yr2015").on("click", function() {
+                    mapArea.selectAll('*').remove();
+                    barsvg.selectAll('*').remove();
+                    year = 2015;
+                    getData(year);
+                });
+
+                d3.select("#yr2020").on("click", function() {
+                    mapArea.selectAll('*').remove();
+                    barsvg.selectAll('*').remove();
+                    year = 2020;
+                    getData(year);
+                });
+
+                d3.select("#submitRegions").on("click", function() {
+                    mapArea.selectAll('*').remove();
+                    barsvg.selectAll('*').remove();
+                    year = year.substring(year.length-4, year.length);
+                    getData(year);
+                });
+
+            }
+
+            getData(year);
+
+        </script>
+
+    </body>
+
+</html>
