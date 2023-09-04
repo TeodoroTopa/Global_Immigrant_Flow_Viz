@@ -1,7 +1,8 @@
 # Global_Immigrant_Flow_Viz
 
 I created this project on a team of three people in the Spring of 2021 for the course INFO 3330: Data Driven Web Applications. The website leverages d3.js and allows users to interactively explore global immigration patterns over time. The interface is quite simple, as the emphasis of the course was on making responsive, interpretable visualizations in JavaScript.
-On this project, I was primarily responsible for the map visualization and related filtering elements.
+
+On this project, I was primarily responsible for the map visualization and related filtering elements. The other two students created the bar graph and cleaned the immigration data.
 
 See below for examples of the page in use:
 
